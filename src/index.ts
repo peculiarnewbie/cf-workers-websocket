@@ -200,6 +200,15 @@ export class ChatRoom {
 					receivedUserInfo = true;
 
 					return;
+				} else if (data.action) {
+					switch (data.action) {
+						case 'delete':
+							this.storage.deleteAll();
+							this.broadcast(JSON.stringify({ name: session.name, action: 'delete' }));
+						default:
+							break;
+					}
+					return;
 				}
 
 				// Construct sanitized message for storage and broadcast.

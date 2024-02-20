@@ -9,11 +9,8 @@ export default {
 			let url = new URL(request.url);
 			let path = url.pathname.slice(1).split('/');
 
-			console.log(path, env.ROOMS);
-
 			switch (path[0]) {
 				case 'api':
-					console.log('calling api handler');
 					// This is a request for `/api/...`, call the API handler.
 					return handleApiRequest(path.slice(1), request, env);
 
@@ -43,7 +40,6 @@ async function handleErrors(request: Request, func: () => any) {
 async function handleApiRequest(path: string[], request: Request, env: Env) {
 	switch (path[0]) {
 		case 'room': {
-			console.log('creating room');
 			// OK, the request is for `/api/room/<name>/...`. It's time to route to the Durable Object
 			// for the specific room.
 			let name = path[1];
@@ -90,7 +86,6 @@ export class ChatRoom {
 
 			switch (url.pathname) {
 				case '/websocket': {
-					console.log('handling socket');
 					// The request is to `/api/room/<name>/websocket`. A client is trying to establish a new
 					// WebSocket session.
 					if (request.headers.get('Upgrade') != 'websocket') {
@@ -103,10 +98,7 @@ export class ChatRoom {
 					}
 
 					let pair = new WebSocketPair();
-
 					await this.handleSession(pair[1], ip);
-
-					console.log('returning socket');
 
 					return new Response(null, { status: 101, webSocket: pair[0] });
 				}
@@ -212,7 +204,7 @@ export class ChatRoom {
 				}
 
 				// Construct sanitized message for storage and broadcast.
-				data = { name: session.name, message: '' + data.message };
+				data = { name: session.name, message: '' + data.message, time: Date.now() };
 
 				// Block people from sending overly long messages. This is also enforced on the client,
 				// so to trigger this the user must be bypassing the client code.

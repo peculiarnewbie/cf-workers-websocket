@@ -73,11 +73,13 @@ export class ChatRoom {
 	env: Env;
 	sessions: Session[];
 	lastTimestamp: number;
-	constructor(controller: DurableObjectState, env: Env) {
+	state: DurableObjectState;
+	constructor(controller: DurableObjectState, env: Env, state: DurableObjectState) {
 		this.storage = controller.storage;
 		this.env = env;
 		this.sessions = [];
 		this.lastTimestamp = 0;
+		this.state = state;
 	}
 
 	async fetch(request: Request) {
@@ -110,7 +112,7 @@ export class ChatRoom {
 	}
 
 	async handleSession(webSocket: WebSocket, ip: string) {
-		webSocket.accept();
+		this.state.acceptWebSocket(webSocket);
 
 		// let limiterId = this.env.LIMITERS.idFromName(ip);
 		// let limiter = new RateLimiterClient(
